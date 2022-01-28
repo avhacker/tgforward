@@ -31,7 +31,7 @@ with TelegramClient(config.session_name, config.api_id, config.api_hash) as clie
     @client.on(events.NewMessage())
     async def handler(event):
         msg = event.message
-        logger.info('new message, peer_id: msg: %s', msg)
+        logger.info('new message: msg: %s', msg)
         peer_id = None
         if isinstance(msg.peer_id, PeerChat): # from chat
             peer_id = msg.peer_id.chat_id
