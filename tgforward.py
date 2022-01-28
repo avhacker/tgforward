@@ -48,10 +48,14 @@ with TelegramClient(config.session_name, config.api_id, config.api_hash) as clie
                         await client.forward_messages(fwd, msg)
         elif isinstance(msg.peer_id, PeerChannel):
             peer_id = msg.peer_id.channel_id
-            if peer_id in config.fwd_from:  # matched channel, ignore user_id filtering
-                for fwd in config.fwd_to:
-                    logger.info("forwarding to %s" % fwd)
-                    await client.forward_messages(fwd, msg)
+            if peer_id in config.fwd_from:  # matched channel
+                user_id = msg.from_id.user_id
+                if (len(config.fwd_from[peer_id]) == 0 or       # no user_id filtering
+                    user_id is None or                          # channel owner
+                    user_id in config.fwd_from[peer_id]):       # user_id matched
+                    for fwd in config.fwd_to:
+                        logger.info("forwarding to %s" % fwd)
+                        await client.forward_messages(fwd, msg)
 
 client.start()
 client.run_until_disconnected()
