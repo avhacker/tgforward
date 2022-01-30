@@ -8,6 +8,5 @@ user_to_monitor = 55555555
 # note that user monitor is ignoreed in channel
 fwd_from = {chat_to_monitor: [user_to_monitor, ], channel_to_monitor: []}
 fwd_to = [chat_my_share,]
-session_name = 'mysample' # used for telegram session file and log file
 api_id = 99999999
 api_hash = 'myhashmyhasmyhash_please_replace'
