@@ -51,12 +51,12 @@ with TelegramClient(config_name, config.api_id, config.api_hash) as client:
             if msg.fwd_from is not None:
                 fwd_from_id = get_id_from_peer(msg.fwd_from.from_id)
             logger.info('New message: peer_id: %s, from_id:%s, fwd_from_id:%s, msg: %s', peer_id, from_id, fwd_from_id, msg)
-            pattern_user_list = config.fwd_from[peer_id]
-            if peer_id in config.fwd_from:
-                if len(pattern_user_list) == 0 or from_id in pattern_user_list or fwd_from_id in pattern_user_list:
-                    for fwd in config.fwd_to:
-                        logger.info("Forwarding message to %s" % fwd)
-                        await client.forward_messages(fwd, msg)
+            if peer_id in config.rules:
+                tgfilter, dest_peers = config.rules[peer_id]
+                if not tgfilter.senders or from_id in tgfilter.senders or fwd_from_id in tgfilter.senders:
+                    for dest_peer in dest_peers:
+                        logger.info("Forwarding message to %s" % dest_peer)
+                        await client.forward_messages(dest_peer, msg)
         except Exception as e:
             logging.error(traceback.format_exc())
 client.start()
