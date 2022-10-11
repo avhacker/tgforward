@@ -17,6 +17,12 @@ def get_id_from_peer(peer):
         pass
     return None
 
+def get_link_from_message(msg):
+    link = None
+    if isinstance(msg.peer_id, PeerChannel):
+        link = f'Message link: https://t.me/c/{get_id_from_peer(msg.peer_id)}/{msg.id}'
+    return link
+
 if len(sys.argv) < 2:
     print ('Please input config file name')
     exit(-1)
@@ -50,13 +56,16 @@ with TelegramClient(config_name, config.api_id, config.api_hash) as client:
             fwd_from_id = None
             if msg.fwd_from is not None:
                 fwd_from_id = get_id_from_peer(msg.fwd_from.from_id)
-            logger.info('New message: peer_id: %s, from_id:%s, fwd_from_id:%s, msg: %s', peer_id, from_id, fwd_from_id, msg)
+            logger.info(f'New message: peer_id: {peer_id}, from_id:% {from_id}, fwd_from_id: {fwd_from_id}, msg: {msg}')
             if peer_id in config.rules:
                 tgfilter, dest_peers = config.rules[peer_id]
                 if not tgfilter.senders or from_id in tgfilter.senders or fwd_from_id in tgfilter.senders:
                     for dest_peer in dest_peers:
-                        logger.info("Forwarding message to %s" % dest_peer)
+                        logger.info(f"Forwarding message {msg} to {dest_peer}")
                         await client.forward_messages(dest_peer, msg)
+                        msg_link = get_link_from_message(msg)
+                        if msg_link:
+                            await client.send_message(dest_peer, msg_link)
         except Exception as e:
             logging.error(traceback.format_exc())
 client.start()
