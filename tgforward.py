@@ -56,7 +56,7 @@ with TelegramClient(config_name, config.api_id, config.api_hash) as client:
             fwd_from_id = None
             if msg.fwd_from is not None:
                 fwd_from_id = get_id_from_peer(msg.fwd_from.from_id)
-            logger.info(f'New message: peer_id: {peer_id}, from_id:% {from_id}, fwd_from_id: {fwd_from_id}, msg: {msg}')
+            logger.info(f'New message: peer_id: {peer_id}, from_id: {from_id}, fwd_from_id: {fwd_from_id}, msg: {msg}')
             if peer_id in config.rules:
                 tgfilter, dest_peers = config.rules[peer_id]
                 if not tgfilter.senders or from_id in tgfilter.senders or fwd_from_id in tgfilter.senders:
