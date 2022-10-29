@@ -58,12 +58,16 @@ with TelegramClient(config_name, config.api_id, config.api_hash) as client:
                 fwd_from_id = get_id_from_peer(msg.fwd_from.from_id)
             logger.info(f'New message: peer_id: {peer_id}, from_id: {from_id}, fwd_from_id: {fwd_from_id}, msg: {msg}')
             if peer_id in config.rules:
-                tgfilter, dest_peers = config.rules[peer_id]
-                if not tgfilter.senders or from_id in tgfilter.senders or fwd_from_id in tgfilter.senders:
-                    for dest_peer in dest_peers:
+                forward_settings = config.rules[peer_id]
+                senders = forward_settings['filters']['senders']
+                if not senders or from_id in senders or fwd_from_id in senders:
+                    add_msg_link = forward_settings['add_msg_url']
+                    for dest_peer in forward_settings['forward_to_groups']:
                         logger.info(f"Forwarding message {msg} to {dest_peer}")
                         await client.forward_messages(dest_peer, msg)
-                        msg_link = get_link_from_message(msg)
+                        msg_link = None
+                        if add_msg_link:
+                            msg_link = get_link_from_message(msg)
                         if msg_link:
                             await client.send_message(dest_peer, msg_link)
         except Exception as e:
