@@ -61,10 +61,14 @@ with TelegramClient(config_name, config.api_id, config.api_hash) as client:
                 forward_settings = config.rules[peer_id]
                 senders = forward_settings['filters']['senders']
                 if not senders or from_id in senders or fwd_from_id in senders:
+                    copy_msg_only = forward_settings['copy_msg_only']
                     add_msg_link = forward_settings['add_msg_url']
                     for dest_peer in forward_settings['forward_to_groups']:
                         logger.info(f"Forwarding message {msg} to {dest_peer}")
-                        await client.forward_messages(dest_peer, msg)
+                        if copy_msg_only:
+                            await client.send_message(dest_peer, msg)
+                        else:
+                            await client.forward_messages(dest_peer, msg)
                         msg_link = None
                         if add_msg_link:
                             msg_link = get_link_from_message(msg)
